@@ -45,9 +45,41 @@ print "Read hit rate: %f" % read_hit_rate
 write_hit_rate = (1 - conf.cache.stat_data_write_miss / float(conf.cache.stat_data_write))
 print "Write hit rate: %f" % write_hit_rate
 
-csvfile = open('cache_statistics_excercise3.csv', 'a')
+# Some useful attributes to get from the cache
+attrs = ['stat_inst_fetch',
+         'penalty_write_next',
+         'config_write_allocate',
+         'config_line_number',
+         'config_write_back',
+         'stat_lost_stall_cycles',
+         'access_count',
+         'penalty_read_next',
+         'config_replacement_policy',
+         'stat_inst_fetch_miss',
+         'stat_uc_data_read',
+         'config_line_size',
+         'stat_data_read_miss',
+         'penalty_read',
+         'stat_data_write',
+         'stat_copy_back',
+         'stat_transaction',
+         'stat_dev_data_read',
+         'stat_uc_inst_fetch',
+         'stat_uc_data_write',
+         'stat_data_write_miss',
+         'stat_data_read',
+         'penalty_write']
+
+statistics = [getattr(conf.cache, attr) for attr in attrs]
+
+filepath = 'cache_statistics_excercise3.csv'
+new_file_created =  not os.path.exists(filepath)
+csvfile = open(filepath, 'a')
 writer = csv.writer(csvfile)
-writer.writerow([benchmark, cache_lines, read_hit_rate, write_hit_rate])
+if new_file_created:
+    # Write the header to newly created files
+    writer.writerow(['benchmark', 'cache_lines', 'read_hit_rate', 'write_hit_rate'] + attrs)
+writer.writerow([benchmark, cache_lines, read_hit_rate, write_hit_rate] + statistics)
 csvfile.close()
 
 run_command("exit")
