@@ -1,0 +1,58 @@
+#
+# Lab1 Part 3.4 script
+# Just launch in the host:
+# ./simics -stall -c checkpoints/vortex.conf -x lab1_3-4.simics
+#
+
+add-directory "%script%"
+
+cpu0_0->instruction-fetch-mode = instruction-cache-access-trace
+# 
+# instruction cache 
+# 
+@ic = pre_conf_object('ic', 'g-cache') 
+@ic.cpus = conf.cpu0_0 
+@ic.config_line_number = 1 
+@ic.config_line_size = 32 
+@ic.config_assoc = 1 
+@ic.config_virtual_index = 0 
+@ic.config_virtual_tag = 0 
+@ic.config_replacement_policy = 'lru' 
+@ic.penalty_read = 0 
+@ic.penalty_write = 0 
+@ic.penalty_read_next = 0 
+@ic.penalty_write_next = 0 
+# 
+# data cache 
+# 
+@dc = pre_conf_object('dc', 'g-cache') 
+@dc.cpus = conf.cpu0_0 
+@dc.config_line_number = 1 
+@dc.config_line_size = 32 
+@dc.config_assoc = 1 
+@dc.config_virtual_index = 0 
+@dc.config_virtual_tag = 0 
+@dc.config_replacement_policy = 'lru' 
+@dc.penalty_read = 0 
+@dc.penalty_write = 0 
+@dc.penalty_read_next = 0 
+@dc.penalty_write_next = 0 
+# 
+# instruction/data splitter 
+# 
+@id = pre_conf_object('id', 'id-splitter') 
+@id.ibranch = ic
+@id.dbranch = dc 
+
+@SIM_add_configuration([ic, dc, id], None) 
+@conf.phys_mem.timing_model = conf.id
+
+istc-disable
+dstc-disable
+
+c 100_000_000
+ic.reset-statistics
+dc.reset-statistics
+c 1_000_000
+ic.statistics
+dc.statistics
