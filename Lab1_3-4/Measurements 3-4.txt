@@ -1,24 +1,25 @@
 Vortex:
 
-Cache statistics: ic
+CCache statistics: ic
 -----------------
-    Total number of transactions:        332304
+    Total number of transactions:        330225
 
-  Instruction fetch transactions:        332304
-        Instruction fetch misses:        210023
-     Instruction fetch hit ratio:         36.80%
+  Instruction fetch transactions:        330225
+        Instruction fetch misses:        205734
+     Instruction fetch hit ratio:         37.70%
+
 
 Cache statistics: dc
 -----------------
-    Total number of transactions:        348047
+    Total number of transactions:        308491
 
-          Data read transactions:        190062
-                Data read misses:        137144
-             Data read hit ratio:         27.84%
+          Data read transactions:        185286
+                Data read misses:        123729
+             Data read hit ratio:         33.22%
 
-         Data write transactions:        157985
-               Data write misses:        142276
-            Data write hit ratio:          9.94%
+         Data write transactions:        123205
+               Data write misses:        114276
+            Data write hit ratio:          7.25%
 
 
 
@@ -26,23 +27,23 @@ Quake:
 
 Cache statistics: ic
 -----------------
-    Total number of transactions:        366480
+    Total number of transactions:        360553
 
-  Instruction fetch transactions:        366480
-        Instruction fetch misses:        259051
-     Instruction fetch hit ratio:         29.31%
+  Instruction fetch transactions:        360553
+        Instruction fetch misses:        243834
+     Instruction fetch hit ratio:         32.37%
 
 Cache statistics: dc
 -----------------
-    Total number of transactions:        201339
+    Total number of transactions:        258979
 
-          Data read transactions:        128169
-                Data read misses:         93325
-             Data read hit ratio:         27.19%
+          Data read transactions:        150576
+                Data read misses:        108310
+             Data read hit ratio:         28.07%
 
-         Data write transactions:         73170
-               Data write misses:         31339
-            Data write hit ratio:         57.17%
+         Data write transactions:        108403
+               Data write misses:         73331
+            Data write hit ratio:         32.35%
 
 
 
@@ -50,23 +51,24 @@ Parser:
 
 Cache statistics: ic
 -----------------
-    Total number of transactions:        317963
+    Total number of transactions:        318196
 
-  Instruction fetch transactions:        317963
-        Instruction fetch misses:        212869
-     Instruction fetch hit ratio:         33.05%
+  Instruction fetch transactions:        318196
+        Instruction fetch misses:        216910
+     Instruction fetch hit ratio:         31.83%
 
 Cache statistics: dc
 -----------------
-    Total number of transactions:        338891
+    Total number of transactions:        345167
 
-          Data read transactions:        220130
-                Data read misses:         88769
-             Data read hit ratio:         59.67%
+          Data read transactions:        217592
+                Data read misses:         81409
+             Data read hit ratio:         62.59%
 
-         Data write transactions:        118761
-               Data write misses:        117325
-            Data write hit ratio:          1.21%
+         Data write transactions:        127575
+               Data write misses:        126221
+            Data write hit ratio:          1.06%
+
 
 
 
@@ -78,23 +80,23 @@ Vortex:
 
 Cache statistics: ic
 -----------------
-    Total number of transactions:        282826
+    Total number of transactions:        252917
 
-  Instruction fetch transactions:        282826
-        Instruction fetch misses:        105246
-     Instruction fetch hit ratio:         62.79%
+  Instruction fetch transactions:        252917
+        Instruction fetch misses:         93427
+     Instruction fetch hit ratio:         63.06%
 
 Cache statistics: dc
 -----------------
-    Total number of transactions:        311580
+    Total number of transactions:        308491
 
-          Data read transactions:        193623
-                Data read misses:        145663
-             Data read hit ratio:         24.77%
+          Data read transactions:        185286
+                Data read misses:        109174
+             Data read hit ratio:         41.08%
 
-         Data write transactions:        117957
-               Data write misses:        111710
-            Data write hit ratio:          5.30%
+         Data write transactions:        123205
+               Data write misses:        113044
+            Data write hit ratio:          8.25%
 
 
 
@@ -102,23 +104,23 @@ Quake:
 
 Cache statistics: ic
 -----------------
-    Total number of transactions:        296166
+    Total number of transactions:        288975
 
-  Instruction fetch transactions:        296166
-        Instruction fetch misses:        129788
-     Instruction fetch hit ratio:         56.18%
+  Instruction fetch transactions:        288975
+        Instruction fetch misses:        118482
+     Instruction fetch hit ratio:         59.00%
 
 Cache statistics: dc
 -----------------
-    Total number of transactions:        201339
+    Total number of transactions:        258979
 
-          Data read transactions:        128169
-                Data read misses:         91287
-             Data read hit ratio:         28.78%
+          Data read transactions:        150576
+                Data read misses:        101530
+             Data read hit ratio:         32.57%
 
-         Data write transactions:         73170
-               Data write misses:         30080
-            Data write hit ratio:         58.89%
+         Data write transactions:        108403
+               Data write misses:         66486
+            Data write hit ratio:         38.67%
 
 
 
@@ -126,21 +128,21 @@ Parser:
 
 Cache statistics: ic
 -----------------
-    Total number of transactions:        237803
+    Total number of transactions:        237255
 
-  Instruction fetch transactions:        237803
-        Instruction fetch misses:         97261
-     Instruction fetch hit ratio:         59.10%
+  Instruction fetch transactions:        237255
+        Instruction fetch misses:         94774
+     Instruction fetch hit ratio:         60.05%
 
 Cache statistics: dc
 -----------------
-    Total number of transactions:        338891
+    Total number of transactions:        345167
 
-          Data read transactions:        220130
-                Data read misses:         66032
-             Data read hit ratio:         70.00%
+          Data read transactions:        217592
+                Data read misses:         55322
+             Data read hit ratio:         74.58%
 
-         Data write transactions:        118761
-               Data write misses:        117091
-            Data write hit ratio:          1.41%
+         Data write transactions:        127575
+               Data write misses:        126088
+            Data write hit ratio:          1.17%
 
