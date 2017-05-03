@@ -50,9 +50,10 @@ cpu0_0->instruction-fetch-mode = instruction-cache-access-trace
 istc-disable
 dstc-disable
 
-c 100_000_000
+c 10_000_000
 ic.reset-statistics
 dc.reset-statistics
 c 1_000_000
 ic.statistics
 dc.statistics
+exit
