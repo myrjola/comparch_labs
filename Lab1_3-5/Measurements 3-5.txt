@@ -1,0 +1,136 @@
+--------------------------
+ 100_000_000 inst warm up
+--------------------------
+
+Vortex:
+
+Cache statistics: lev2c
+-----------------
+    Total number of transactions:        177698
+
+          Data read transactions:         16308
+                Data read misses:           122
+             Data read hit ratio:         99.25%
+
+  Instruction fetch transactions:         43935
+        Instruction fetch misses:            81
+     Instruction fetch hit ratio:         99.82%
+
+         Data write transactions:        117455
+               Data write misses:            96
+            Data write hit ratio:         99.92%
+
+          Copy back transactions:            85
+
+               Lost Stall Cycles:          1970
+
+
+
+Quake:
+
+Cache statistics: lev2c
+-----------------
+    Total number of transactions:        101380
+
+          Data read transactions:          1596
+                Data read misses:           147
+             Data read hit ratio:         90.79%
+
+  Instruction fetch transactions:         30084
+        Instruction fetch misses:             0
+     Instruction fetch hit ratio:        100.00%
+
+         Data write transactions:         69700
+               Data write misses:            51
+            Data write hit ratio:         99.93%
+
+          Copy back transactions:            93
+
+               Lost Stall Cycles:          1130
+
+
+
+Parser:
+
+Cache statistics: lev2c
+-----------------
+    Total number of transactions:        121819
+
+          Data read transactions:          8616
+                Data read misses:            37
+             Data read hit ratio:         99.57%
+
+  Instruction fetch transactions:          3030
+        Instruction fetch misses:             0
+     Instruction fetch hit ratio:        100.00%
+
+         Data write transactions:        110173
+               Data write misses:             0
+            Data write hit ratio:        100.00%
+
+          Copy back transactions:            25
+
+               Lost Stall Cycles:          1740
+
+
+
+------------------------------------------------------
+	L2 lines : 4096 -> 64  (/64)
+------------------------------------------------------
+
+Vortex:
+
+Cache statistics: lev2c
+-----------------
+    Total number of transactions:        119968
+
+          Data read transactions:         14414
+                Data read misses:         10620
+             Data read hit ratio:         26.32%
+
+  Instruction fetch transactions:         27960
+        Instruction fetch misses:         16607
+     Instruction fetch hit ratio:         40.60%
+
+         Data write transactions:         77594
+               Data write misses:          3056
+            Data write hit ratio:         96.06%
+
+          Copy back transactions:          5209
+
+               Lost Stall Cycles:         14330
+
+
+------------------------------------------------------
+	L2 lines : 4096 -> 8192  (*2)
+------------------------------------------------------
+
+Vortex:
+
+Cache statistics: lev2c
+-----------------
+    Total number of transactions:        178507
+
+         Device data reads (DMA):             0
+        Device data writes (DMA):             0
+
+          Uncacheable data reads:             0
+         Uncacheable data writes:             0
+ Uncacheable instruction fetches:             0
+
+          Data read transactions:         16363
+                Data read misses:            22
+             Data read hit ratio:         99.87%
+
+  Instruction fetch transactions:         44164
+        Instruction fetch misses:             0
+     Instruction fetch hit ratio:        100.00%
+
+         Data write transactions:        117980
+               Data write misses:            74
+            Data write hit ratio:         99.94%
+
+          Copy back transactions:            62
+
+               Lost Stall Cycles:          2030
+

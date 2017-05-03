@@ -1,0 +1,86 @@
+#
+# Lab1 Part 3.5 script
+# Just launch in the host:
+# ./simics -stall -c checkpoints/vortex.conf -x lab1_3-5.simics
+#
+
+add-directory "%script%"
+
+cpu0_0->instruction-fetch-mode = instruction-cache-access-trace
+
+# 
+# Transaction staller for memory 
+# 
+@staller = pre_conf_object('staller', 'trans-staller') 
+@staller.stall_time = 200 
+# 
+# l2 cache: 512Kb Write-back 
+# 
+@lev2c = pre_conf_object('lev2c', 'g-cache') 
+@lev2c.cpus = conf.cpu0_0 
+@lev2c.config_line_number = 4096 
+@lev2c.config_line_size = 128 
+@lev2c.config_assoc = 8 
+@lev2c.config_virtual_index = 0 
+@lev2c.config_virtual_tag = 0 
+@lev2c.config_write_back = 1 
+@lev2c.config_write_allocate = 1 
+@lev2c.config_replacement_policy = 'lru' 
+@lev2c.penalty_read = 10 
+@lev2c.penalty_write = 10 
+@lev2c.penalty_read_next = 0 
+@lev2c.penalty_write_next = 0 
+@lev2c.timing_model = staller 
+
+@SIM_add_configuration([staller, lev2c], None) 
+# 
+# instruction cache: 4Kb 
+# 
+@ic = pre_conf_object('ic', 'g-cache') 
+@ic.cpus = conf.cpu0_0 
+@ic.config_line_number = 64 
+@ic.config_line_size = 64 
+@ic.config_assoc = 2 
+@ic.config_virtual_index = 0 
+@ic.config_virtual_tag = 0 
+@ic.config_replacement_policy = 'lru' 
+@ic.penalty_read = 3 
+@ic.penalty_write = 0 
+@ic.penalty_read_next = 0 
+@ic.penalty_write_next = 0 
+@ic.timing_model = conf.lev2c 
+# 
+# data cache: 4Kb Write-through 
+# 
+@dc = pre_conf_object('dc', 'g-cache') 
+@dc.cpus = conf.cpu0_0 
+@dc.config_line_number = 64 
+@dc.config_line_size = 64 
+@dc.config_assoc = 4 
+@dc.config_virtual_index = 0 
+@dc.config_virtual_tag = 0 
+@dc.config_replacement_policy = 'lru' 
+@dc.penalty_read = 3 
+@dc.penalty_write = 3 
+@dc.penalty_read_next = 0 
+@dc.penalty_write_next = 0 
+@dc.timing_model = conf.lev2c 
+# 
+# instruction/data splitter 
+# 
+@id = pre_conf_object('id', 'id-splitter') 
+@id.ibranch = ic
+@id.dbranch = dc 
+
+@SIM_add_configuration([ic, dc, id], None) 
+
+@conf.phys_mem.timing_model = conf.id
+
+istc-disable
+dstc-disable
+
+c 10_000_000
+lev2c.reset-statistics
+c 1_000_000
+lev2c.statistics
+exit
