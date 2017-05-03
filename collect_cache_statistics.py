@@ -35,7 +35,7 @@ SIM_add_configuration([cache], None)
 
 conf.phys_mem.timing_model = conf.cache
 
-run_command("continue 1000000000")
+run_command("continue 100000000")
 run_command("cache.reset-statistics")
 run_command("continue 1000000")
 
