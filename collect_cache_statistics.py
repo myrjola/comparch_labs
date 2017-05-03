@@ -35,18 +35,19 @@ SIM_add_configuration([cache], None)
 
 conf.phys_mem.timing_model = conf.cache
 
-run_command("continue 100000")
+run_command("continue 1000000000")
 run_command("cache.reset-statistics")
-run_command("continue 10000")
-
+run_command("continue 1000000")
 
 print "Lines used: %d" % conf.cache.config_line_number
 read_hit_rate = (1 - conf.cache.stat_data_read_miss / float(conf.cache.stat_data_read))
 print "Read hit rate: %f" % read_hit_rate
+write_hit_rate = (1 - conf.cache.stat_data_write_miss / float(conf.cache.stat_data_write))
+print "Write hit rate: %f" % write_hit_rate
 
 csvfile = open('cache_statistics_excercise3.csv', 'a')
 writer = csv.writer(csvfile)
-writer.writerow([benchmark, cache_lines, read_hit_rate])
+writer.writerow([benchmark, cache_lines, read_hit_rate, write_hit_rate])
 csvfile.close()
 
 run_command("exit")
