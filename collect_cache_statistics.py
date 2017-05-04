@@ -13,6 +13,7 @@ conf.cpu0_0.instruction_fetch_mode = "instruction-cache-access-trace"
 
 # Read environment variables
 cache_lines = int(os.environ.get('CACHE_LINES') or 128)
+associativity = int(os.environ.get('ASSOC') or 1)
 benchmark = os.environ.get('BENCHMARK') or 'unknown'
 
 #
@@ -22,7 +23,7 @@ cache = pre_conf_object('cache', 'g-cache')
 cache.cpus = [conf.cpu0_0]
 cache.config_line_number = cache_lines
 cache.config_line_size = 32
-cache.config_assoc = 1
+cache.config_assoc = associativity
 cache.config_virtual_index = 0
 cache.config_virtual_tag = 0
 cache.config_replacement_policy = 'random'
@@ -68,7 +69,8 @@ attrs = ['stat_inst_fetch',
          'stat_uc_data_write',
          'stat_data_write_miss',
          'stat_data_read',
-         'penalty_write']
+         'penalty_write',
+         'config_assoc']
 
 statistics = [getattr(conf.cache, attr) for attr in attrs]
 
