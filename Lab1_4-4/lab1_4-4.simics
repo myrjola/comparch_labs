@@ -1,0 +1,48 @@
+#
+# Lab1 Part 4.4 script
+# Just launch in the host:
+# ./simics -stall -c 'benchmark_at_magic_breakpoint.conf' -x lab1_4-4.simics
+#
+
+run-python-file copy-mem-spaces.py
+
+run-python-file configure-caches.py
+
+$loop = 0
+while $loop < 8 {
+    $thread = 0
+    while $thread < 4 {
+        ("cpu"+ $loop + "_" + $thread)->instruction-fetch-mode = instruction-cache-access-trace
+        ("cpu"+ $loop + "_" + $thread)->physical_memory = ("cpu_mem" + $loop)
+        $thread += 1
+    }
+    ("cpu_mem" + $loop)->timing_model = ("l1cache" + $loop)
+    $loop += 1
+}
+
+istc-disable
+dstc-disable
+
+c 1_000_000
+#c 1000
+
+l2cache.reset-statistics
+l1cache0.reset-statistics
+l1cache1.reset-statistics
+l1cache2.reset-statistics
+l1cache3.reset-statistics
+l1cache4.reset-statistics
+l1cache5.reset-statistics
+l1cache6.reset-statistics
+l1cache7.reset-statistics
+
+c 10_000_000
+#c 10000
+
+run-python-file lab1_4-4.py
+
+l1cache0.statistics
+l2cache.statistics
+
+exit
+
