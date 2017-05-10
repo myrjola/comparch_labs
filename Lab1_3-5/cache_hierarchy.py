@@ -21,6 +21,8 @@ benchmark = os.environ.get('BENCHMARK') or 'unknown'
 staller = pre_conf_object('staller', 'trans-staller')
 staller.stall_time = 200
 
+print("cache_lines: %d" % cache_lines)
+
 #
 # l2 cache: 512Kb Write-back
 #
@@ -119,6 +121,8 @@ attrs = ['stat_inst_fetch',
          'penalty_write',
          'config_assoc']
 
+print("lev2c.config_line_number %d" % conf.lev2c.config_line_number)
+
 all_caches_statistics = []
 
 caches = ['ic', 'dc', 'lev2c']
@@ -132,7 +136,7 @@ csvfile = open(filepath, 'a')
 writer = csv.writer(csvfile)
 if new_file_created:
     # Write the header to newly created files
-    all_caches_headers = ["%s.%s" % (cache, attr) for attr in attrs for cache in caches]
+    all_caches_headers = ["%s.%s" % (cache, attr) for cache in caches for attr in attrs]
     writer.writerow(['benchmark'] + all_caches_headers)
 writer.writerow([benchmark] + all_caches_statistics)
 csvfile.close()
