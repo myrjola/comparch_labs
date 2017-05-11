@@ -17,18 +17,19 @@
  * through a local variable
  */
 static void
-increase(int thread, int iterations, volatile int *data)
-{
-        for (int i = 0; i < iterations; i++) {
-                int a;
-                /* TASK: Use enter_critical(thread) and
-                 * exit_critical(thread) to define a critical section
-                 * around the code that needs to execute atomically.
-                 */
-                a = *data;
-                a++;
-                *data = a;
-        }
+increase(int thread, int iterations, volatile int *data) {
+    for (int i = 0; i < iterations; i++) {
+        int a;
+        /* TASK: Use enter_critical(thread) and
+         * exit_critical(thread) to define a critical section
+         * around the code that needs to execute atomically.
+         */
+        enter_critical(thread);
+        a = *data;
+        a++;
+        *data = a;
+        exit_critical(thread);
+    }
 }
 
 /**
@@ -36,18 +37,21 @@ increase(int thread, int iterations, volatile int *data)
  * through a local variable
  */
 static void
-decrease(int thread, int iterations, volatile int *data)
-{
-        for (int i = 0; i < iterations; i++) {
-                int a;
-                /* TASK: Use enter_critical(thread) and
-                 * exit_critical(thread) to define a critical section
-                 * around the code that needs to execute atomically.
-                 */
-                a = *data;
-                a--;
-                *data = a;
-        }
+decrease(int thread, int iterations, volatile int *data) {
+    for (int i = 0; i < iterations; i++) {
+        int a;
+        /* TASK: Use enter_critical(thread) and
+         * exit_critical(thread) to define a critical section
+         * around the code that needs to execute atomically.
+         */
+        enter_critical(thread);
+
+        a = *data;
+        a--;
+        *data = a;
+        exit_critical(thread);
+
+    }
 }
 
 test_impl_t test_impl_critical = {
@@ -55,7 +59,7 @@ test_impl_t test_impl_critical = {
         .desc = "Modify a shared variable protected by critical sections",
 
         .num_threads = 2,
-        .test = { &increase, &decrease }
+        .test = {&increase, &decrease}
 };
 
 

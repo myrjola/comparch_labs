@@ -4,6 +4,7 @@ author:
 - Yrkkö Äkkijyrkkä <yrkko@kth.se>
 - Martin Yrjölä <yrjola@kth.se>
 bibliography: references.bib
+output: pdf_document
 ---
 
 3.2 Collecting statistics from simple cache
@@ -88,9 +89,7 @@ a useful metric for assessing the performance between the different sizes.
 Next we will calculate the average memory access time. We will use the
 following formula to calculate it.
 
-$$
-3 + L1_{\text{miss rate}}*(10 + L2_{\text{miss rate}}*200)
-$$
+$$ 3 + L1_{\text{miss rate}} * (10 + L2_{\text{miss rate}} * 200) $$
 
 The average access times are given in @tbl:amat_table. We calculated them by
 aggregating the statistics for all the benchmarks. As expected the access time
@@ -116,6 +115,13 @@ with the smaller cache.
 TODO: talk about the MESI stats
 
 ![Multithreaded cache performance](multithreaded_caches.png){#fig:multithreaded}
+
+5.5 Critical sections
+===================================
+The data is most of the time inconsistent when using `./lab1.5 -t critical -c pthreads`, increasingly so when adding threads to the execution.
+
+Adding the `enter_critical()` and `exit_critical()` makes the data consistent across executions.
+
 
 Bibliography
 ============
