@@ -136,3 +136,26 @@ group_by(cache_hierarchy_before_gather, lev2c.cache_size) %>%
          average_memory_access_time=format(round(3 + lev1c.miss_rate*(10 + lev2c.miss_rate*200), 4), nsmall=4),
          cache_size=c("8 kiB", "500 kiB", "1 MiB")) %>%
   select("L2 cache size"=cache_size, "Average memory access time (cycles)"=average_memory_access_time)
+
+## 4.4
+
+mesi_stats <- read.csv('../cache_statistics_exercise4-4.csv')
+
+cache_stats44 <- gather(mesi_stats, variable, hit_rate, c(l1.read, l1.write, l1.instruction, l2.read, l2.write, l2.instruction))
+
+cache_stats44 <- mutate(cache_stats44,
+                        l1size=ordered(cache_stats44$l1size, levels=c("8 kiB", "64 kiB")),
+                        miss_rate=(100-hit_rate)/100)
+
+
+ggplot(data=cache_stats44, aes(x=variable,
+                               y=miss_rate,
+                               fill=l1size)) +
+  geom_col(position='dodge') +
+  scale_y_continuous(labels=percent) +
+  scale_fill_discrete(name="L1 cache size (bytes)") +
+  scale_x_discrete(name="Access type",
+                   labels=c("L1 inst", "L1 read", "L1 write",
+                            "L2 inst", "L2 read", "L2 write")) +
+  ylab("Miss rate")
+ggsave("multithreaded_caches.png")

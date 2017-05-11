@@ -101,10 +101,24 @@ gets shorter by increasing the cache size.
 | 8 kiB         |                              6.1996 |
 | 500 kiB       |                              4.1795 |
 | 1 MiB         |                              4.1769 |
-: Average memory access time for the cache hierarcies {#tbl:amat_table}
+: Average memory access time for the cache hierarchies {#tbl:amat_table}
 
 
-# Bibliography
+4.4 Multithreaded performance study
+===================================
+
+The miss rates for the multithreaded benchmark are given in @fig:multithreaded.
+The results for the L1 cache are averaged over all the caches. What we can
+observe is that the miss rates decrease substantially for the L1 cache when we
+quadruple its size, this is expected because there's a lot of conflict misses
+with the smaller cache.
+
+TODO: talk about the MESI stats
+
+![Multithreaded cache performance](multithreaded_caches.png){#fig:multithreaded}
+
+Bibliography
+============
 
 <!-- The bibliography gets populated here automatically thanks to
 pandoc-citeproc. -->
