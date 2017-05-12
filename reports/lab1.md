@@ -118,9 +118,9 @@ TODO: talk about the MESI stats
 
 5.5 Critical sections
 ===================================
-The data is most of the time inconsistent when using `./lab1.5 -t critical -c pthreads`, increasingly so when adding threads to the execution.
+1. The data is most of the time inconsistent when using `./lab1.5 -t critical -c pthreads`, increasingly so when adding threads to the execution.
 
-Adding the `enter_critical()` and `exit_critical()` makes the data consistent across executions.
+2. Adding the `enter_critical()` and `exit_critical()` makes the data consistent across executions.
 
 
 Bibliography

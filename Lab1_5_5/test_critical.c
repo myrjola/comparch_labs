@@ -45,7 +45,6 @@ decrease(int thread, int iterations, volatile int *data) {
          * around the code that needs to execute atomically.
          */
         enter_critical(thread);
-
         a = *data;
         a--;
         *data = a;

@@ -12,6 +12,8 @@
  */
 
 #include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 #include "lab1.5.h"
 
@@ -22,7 +24,7 @@
 #error Memory fence macros not implemented for this platform.
 #endif
 
-static volatile int flag[2] = { 0, 0 };
+static volatile int flag[2] = {false, false};
 static volatile int turn = 0;
 
 /**
@@ -31,15 +33,41 @@ static volatile int turn = 0;
  * \param thread Thread ID, either 0 or 1.
  */
 static void
-impl_enter_critical(int thread)
-{
-        assert(thread == 0 || thread == 1);
+impl_enter_critical(int thread) {
+    assert(thread == 0 || thread == 1);
 
-        /* HINT: Since Dekker's algorithm only works for 2 threads,
-         * with the ID 0 and 1, you may use !thread to get the ID the
-         * other thread. */
+    /* HINT: Since Dekker's algorithm only works for 2 threads,
+     * with the ID 0 and 1, you may use !thread to get the ID the
+     * other thread. */
 
-        /* TASK: Implement entry code for Dekker's algorithm here */
+    /* TASK: Implement entry code for Dekker's algorithm here */
+
+    if(thread == 0){
+        flag[0] = true;
+        while(flag[1]){
+            if(turn != 0){
+                flag[0] = false;
+                while(turn != 0){
+                    //Busy wait
+                    printf("0\n");
+                }
+                flag[0] = true;
+            }
+        }
+    }
+    if(thread == 1){
+        flag[1] = true;
+        while(flag[0]){
+            if(turn != 1){
+                flag[1] = false;
+                while(turn != 1){
+                    //Busy wait
+                    printf("1\n");
+                }
+                flag[1] = true;
+            }
+        }
+    }
 }
 
 /**
@@ -48,11 +76,18 @@ impl_enter_critical(int thread)
  * \param thread Thread ID, either 0 or 1.
  */
 static void
-impl_exit_critical(int thread)
-{
-        assert(thread == 0 || thread == 1);
+impl_exit_critical(int thread) {
+    assert(thread == 0 || thread == 1);
+    /* TASK: Implement exit code for Dekker's algorithm here */
+    if(thread == 0){
+        turn = 1;
+        flag[0] = false;
+    }
+    if(thread == 1){
+        turn = 0;
+        flag[1] = false;
+    }
 
-        /* TASK: Implement exit code for Dekker's algorithm here */
 }
 
 
