@@ -119,8 +119,29 @@ TODO: talk about the MESI stats
 5.5 Critical sections
 ===================================
 1. The data is most of the time inconsistent when using `./lab1.5 -t critical -c pthreads`, increasingly so when adding threads to the execution.
+2. Adding the `enter_critical()` and `exit_critical()` makes the data consistent across executions by using mutexes.
+3. Dekker's algorithm
+    a. The variables are marked volatile in order to protect false writes because both threads are accessing them.
+    b. The CPU's out-of-order execution causes the inconsistency of data.    
+4. Memory fence Implementation:
+```c
+if(thread == 1){
+        flag[1] = true;
+        MFENCE();
+        while(flag[0]){
+            if(turn != 1){
+                flag[1] = false;
+                while(turn != 1){
+                    //Busy wait
+                }
+                flag[1] = true;
+            }
+        }
+}
+MFENCE();
+```
 
-2. Adding the `enter_critical()` and `exit_critical()` makes the data consistent across executions.
+5. Atomic instructions
 
 
 Bibliography

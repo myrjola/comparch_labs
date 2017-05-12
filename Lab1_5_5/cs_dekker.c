@@ -44,12 +44,12 @@ impl_enter_critical(int thread) {
 
     if(thread == 0){
         flag[0] = true;
+        MFENCE();
         while(flag[1]){
             if(turn != 0){
                 flag[0] = false;
                 while(turn != 0){
                     //Busy wait
-                    printf("0\n");
                 }
                 flag[0] = true;
             }
@@ -57,17 +57,18 @@ impl_enter_critical(int thread) {
     }
     if(thread == 1){
         flag[1] = true;
+        MFENCE();
         while(flag[0]){
             if(turn != 1){
                 flag[1] = false;
                 while(turn != 1){
                     //Busy wait
-                    printf("1\n");
                 }
                 flag[1] = true;
             }
         }
     }
+    MFENCE();
 }
 
 /**
