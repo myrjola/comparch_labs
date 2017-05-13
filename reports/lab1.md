@@ -109,12 +109,25 @@ gets shorter by increasing the cache size.
 The miss rates for the multithreaded benchmark are given in @fig:multithreaded.
 The results for the L1 cache are averaged over all the caches. What we can
 observe is that the miss rates decrease substantially for the L1 cache when we
-quadruple its size, this is expected because there's a lot of conflict misses
-with the smaller cache.
-
-TODO: talk about the MESI stats
+quadruple its size, this is expected because there is likely a lot of conflict
+misses with the smaller cache. The miss rates for L2 instruction fetch and write
+increases when L1 cache is enlarged. The main reason is that earlier the L1
+conflict misses got served by the L2 cache but with the larger L1 cache most of
+the conflict misses become hits and the thus there are less hits overall in the
+L2 cache.
 
 ![Multithreaded cache performance](multithreaded_caches.png){#fig:multithreaded}
+
+MESI statistics for the L1 caches are given in @fig:multithreaded_mesi. The
+values are the arithmetic mean of all the statistics on the different
+processors. The L1 cache is write through, therefore there are no
+'modified'-transactions. The exclusive to shared statistics are increased
+because it is more likely that any given address is available in the larger
+caches. This also leads to a dramatic increase in invalidates because more data
+is shared in a larger cache and thus a write has a higher probability to
+invalidate more data than with the smaller cache.
+
+![Multithreaded MESI statistics](multithreaded_caches.png){#fig:multithreaded_mesi}
 
 5.5 Critical sections
 ===================================

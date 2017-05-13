@@ -141,11 +141,11 @@ group_by(cache_hierarchy_before_gather, lev2c.cache_size) %>%
 
 mesi_stats <- read.csv('../cache_statistics_exercise4-4.csv')
 
-cache_stats44 <- gather(mesi_stats, variable, hit_rate, c(l1.read, l1.write, l1.instruction, l2.read, l2.write, l2.instruction))
-
-cache_stats44 <- mutate(cache_stats44,
-                        l1size=ordered(cache_stats44$l1size, levels=c("8 kiB", "64 kiB")),
-                        miss_rate=(100-hit_rate)/100)
+cache_stats44 <- gather(mesi_stats, variable, hit_rate,
+                        c(l1.read, l1.write, l1.instruction,
+                          l2.read, l2.write, l2.instruction)) %>%
+  mutate(l1size=ordered(cache_stats44$l1size, levels=c("8 kiB", "64 kiB")),
+         miss_rate=(100-hit_rate)/100)
 
 
 ggplot(data=cache_stats44, aes(x=variable,
@@ -159,3 +159,20 @@ ggplot(data=cache_stats44, aes(x=variable,
                             "L2 inst", "L2 read", "L2 write")) +
   ylab("Miss rate")
 ggsave("multithreaded_caches.png")
+
+mesi_stats <- gather(mesi_stats, variable, stat, c(exclusive.to.shared, Invalidate)) %>%
+  mutate(l1size=ordered(l1size, levels=c("8 kiB", "64 kiB")),
+         variable=gsub("exclusive.to.shared", "Exclusive to shared", variable))
+
+ggplot(data=mesi_stats, aes(x=variable,
+                            y=stat,
+                            fill=l1size)) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) +
+  geom_col(position='dodge') +
+  scale_y_continuous(breaks=mesi_stats$stat) +
+  scale_fill_discrete(name="L1 cache size (bytes)") +
+  ylab("L1 MESI statistics (mean count)")
+ggsave("multithreaded_caches_mesi.png")
