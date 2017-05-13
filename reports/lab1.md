@@ -131,7 +131,11 @@ invalidate more data than with the smaller cache.
 
 5.5 Critical sections
 ===================================
-1. The data is most of the time inconsistent when using `./lab1.5 -t critical -c pthreads`, increasingly so when adding threads to the execution.
+1. The data is most of the time inconsistent when using `./lab1.5 -t critical -c
+   pthreads`, increasingly so when adding threads to the execution. This is
+   explained by race conditions because there is no synchronization. When one
+   thread has read the counter value it should be locked from from reading and
+   writing by other threads until the value has been incremented/decremented.
 2. Adding the `enter_critical()` and `exit_critical()` makes the data consistent across executions by using mutexes.
 3. Dekker's algorithm
     a. The variables are marked volatile in order to protect false writes because both threads are accessing them.
