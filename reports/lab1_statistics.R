@@ -32,7 +32,7 @@ df %>%
 
 ## 3.3
 
-breaks <- c(4e3, 16e3, 6e4, 22e4, 7e5, 2e6, 8e6, 33e6)
+breaks <- c(4e3, 16e3, 6e4, 4e5, 2e6, 8e6, 33e6)
 
 ggplot(data=df,
        aes(x=cache_size,
@@ -47,6 +47,7 @@ ggplot(data=df,
   scale_colour_discrete(name="Benchmark") +
   scale_shape_discrete(name="Associativity") +
   geom_point(size=1, fill="white")
+ggsave("working_set_size.png", width=5, height=8)
 
 
 ## 3.4
@@ -77,6 +78,7 @@ ggplot(data=minimal_cache, aes(x=benchmark,
   xlab("Benchmark") +
   ylab("Hit rate") +
   facet_wrap(~access_type)
+ggsave("minimal_line_size.png", scale=1.3)
 
 ## 3.5
 
@@ -120,6 +122,7 @@ ggplot(data=cache_hierarchy, aes(x=benchmark,
   xlab("Benchmark") +
   ylab("Hit rate") +
   facet_wrap(~cache_type)
+ggsave("cache_hierarchy.png", scale=1.3)
 
 ## Horrible violation of DRY for 3.5 step 3
 group_by(cache_hierarchy_before_gather, lev2c.cache_size) %>%
