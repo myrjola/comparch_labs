@@ -127,7 +127,7 @@ caches. This also leads to a dramatic increase in invalidates because more data
 is shared in a larger cache and thus a write has a higher probability to
 invalidate more data than with the smaller cache.
 
-![Multithreaded MESI statistics](multithreaded_caches.png){#fig:multithreaded_mesi}
+![Multithreaded MESI statistics](multithreaded_caches_mesi.png){#fig:multithreaded_mesi}
 
 5.5 Critical sections
 ===================================
