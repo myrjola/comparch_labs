@@ -7,6 +7,18 @@ bibliography: references.bib
 output: pdf_document
 ---
 
+Introduction
+============
+
+We have been collaborating with a group of other students to automate the Simics
+benchmarking in the git repository published at
+https://github.com/myrjola/comparch_labs. The data used for our figures and
+tables and the code to generate them are published in the same repository. The
+majority of the lab time has been spent developing the automation and doing data
+gathering. We have discussed our findings actively with the repository
+collaborators, but also took care to conduct our own benchmarks and write our
+own analysis.
+
 3.2 Collecting statistics from simple cache
 ===========================================
 
@@ -25,6 +37,8 @@ hit 56.9 percent of the time.
 3.3 Determining benchmark working set size
 ==========================================
 
+![Hit rate for different cache sizes and degrees of associativity](working_set_size.png){#fig:hit_rate_graph}
+
 By increasing the cache size the amount of conflict and capacity misses will
 decrease. Because the cache has been warmed up in our benchmark, there should be
 very few compulsory misses. The cache size at the point when the hit rate
@@ -36,10 +50,10 @@ suggests that the parser benchmark has the smallest working set at approximately
 60kB. The working set of the vortex benchmark is around 2MB. The equake
 benchmark has the largest working set. We estimate it is approximately 4MB.
 
-![Hit rate for different cache sizes and degrees of associativity](working_set_size.png){#fig:hit_rate_graph}
-
 3.4 Minimal instruction and data caches
 =======================================
+
+![Benchmark performance with one cache line](minimal_line_size.png){#fig:minimal_cache_graph}
 
 The performance using one cache line with different sizes is presented in
 @fig:minimal_cache_graph. Using one cache line will give us a hint of the
@@ -63,8 +77,6 @@ accesses. The data suggests that instruction accesses tend to follow the
 principles of temporal and spatial locality quite well. Data access is very much
 dependent on the benchmark. The parser benchmark achieves higher read hit rate
 than the code, but both the parser and vortex suffer of bad write performance.
-
-![Benchmark performance with one cache line](minimal_line_size.png){#fig:minimal_cache_graph}
 
 3.5 Collecting statistics from a cache hierarchy
 ================================================
@@ -105,15 +117,63 @@ gets shorter by increasing the cache size.
 3.6 Application tuning for a given cache hierarchy
 ==================================================
 
+| AMAT (cycles) | L2 lines | DC line size | DC lines | IC lines | DC assoc | L2 assoc | DC hit rate | IC hit rate | L2 hit rate |
+|---------------|----------|--------------|----------|----------|----------|----------|-------------|-------------|-------------|
+|      10.69258 |       32 |           16 |       16 |        8 |        1 |        4 |        0.88 |        0.69 |        0.84 |
+|      10.69258 |       32 |           16 |       16 |        8 |        1 |        4 |        0.88 |        0.69 |        0.84 |
+|      11.02387 |       32 |           64 |       16 |        8 |        1 |        4 |        0.85 |        0.69 |        0.85 |
+|      11.02387 |       32 |           64 |       16 |        8 |        1 |        4 |        0.85 |        0.69 |        0.85 |
+|      11.13431 |       32 |           32 |       16 |        8 |        1 |        4 |        0.84 |        0.69 |        0.85 |
+|      11.13431 |       32 |           32 |       16 |        8 |        1 |        4 |        0.84 |        0.69 |        0.85 |
+|      11.26225 |       16 |           16 |       16 |        8 |        1 |        4 |        0.88 |        0.69 |        0.83 |
+|      11.26225 |       16 |           16 |       16 |        8 |        1 |        4 |        0.88 |        0.69 |        0.83 |
+|      11.37848 |       32 |           64 |        8 |        8 |        1 |        4 |        0.82 |        0.69 |        0.86 |
+|      11.37848 |       32 |           64 |        8 |        8 |        1 |        4 |        0.82 |        0.69 |        0.86 |
+|      11.53585 |       32 |           32 |        8 |        8 |        1 |        4 |        0.81 |        0.69 |        0.86 |
+|      11.53585 |       32 |           32 |        8 |        8 |        1 |        4 |        0.81 |        0.69 |        0.86 |
+|      11.56691 |       16 |           64 |       16 |        8 |        1 |        4 |        0.85 |        0.68 |        0.84 |
+|      11.56691 |       16 |           64 |       16 |        8 |        1 |        4 |        0.85 |        0.68 |        0.84 |
+|      11.73972 |       16 |           32 |       16 |        8 |        1 |        4 |        0.84 |        0.68 |        0.84 |
+|      11.73972 |       16 |           32 |       16 |        8 |        1 |        4 |        0.84 |        0.68 |        0.84 |
+|      11.90727 |       32 |           64 |        4 |        8 |        1 |        4 |        0.78 |        0.69 |        0.87 |
+|      11.90727 |       32 |           64 |        4 |        8 |        1 |        4 |        0.78 |        0.69 |        0.87 |
+|      12.04599 |       16 |           64 |        8 |        8 |        1 |        4 |        0.82 |        0.68 |        0.84 |
+|      12.04599 |       16 |           64 |        8 |        8 |        1 |        4 |        0.82 |        0.68 |        0.84 |
+|      12.18663 |       16 |           32 |        8 |        8 |        1 |        4 |        0.81 |        0.68 |        0.85 |
+|      12.18663 |       16 |           32 |        8 |        8 |        1 |        4 |        0.81 |        0.68 |        0.85 |
+|      12.29470 |        8 |           16 |       16 |        8 |        1 |        4 |        0.88 |        0.68 |        0.80 |
+|      12.29470 |        8 |           16 |       16 |        8 |        1 |        4 |        0.88 |        0.68 |        0.80 |
+|      12.43491 |        8 |           64 |       16 |        8 |        1 |        4 |        0.84 |        0.68 |        0.82 |
+: Average memory access time for the gemm benchmark {#tbl:gemm_stats}
+
 In choosing the most suitable cache we have to take both performance and cost
 metrics into account. Most of the performance metrics can be generated by
-Simics, but we use Cacti 3.6 to gain access time, power and area overheads. We
-use the default settings from the Cacti web interface [^1].
+Simics, but we plan to use Cacti 5.3 to gain access time, power and area
+overheads. We use the default settings from the Cacti web interface. What we
+found out by testing Cacti is that it doesn't work for small caches. At least
+the results seem to be illogical with access times of 1e39 ns for many of our
+cache configurations. Because of this bug we were unable find the optimal
+configuration with regard to all metrics.
 
-[^1]: http://quid.hpl.hp.com:9081/cacti/faq.y 
+We performed 584 tests and chose the average memory access time as the most
+suitable performance metric. We calculate the AMAT in the same manner as in 3.5
+with the same miss penalties, we would have liked to use dynamic miss penalties
+based on the cache configuration, but that was not possible due to the Cacti
+bugs discussed earlier. The gemm benchmark has been run 100 million cycles after
+the first magic breakpoint.
+
+The top-25 best performing configurations are given in @tbl:gemm_stats. The
+blocked matrix multiply works well with very small caches. Even the L2 cache can
+be very small without too much performance degradation. Without being able to do
+assess all metrics with Cacti we have to hazard a guess on the most balanced
+configuration. We would like to choose the 23rd best configuration for the
+application, because that is the best one with an L2 cache of only 8 lines and
+still with good performance.
 
 4.4 Multithreaded performance study
 ===================================
+
+![Multithreaded cache performance](multithreaded_caches.png){#fig:multithreaded}
 
 The miss rates for the multithreaded benchmark are given in @fig:multithreaded.
 The results for the L1 cache are averaged over all the caches. What we can
@@ -125,7 +185,7 @@ conflict misses got served by the L2 cache but with the larger L1 cache most of
 the conflict misses become hits and the thus there are less hits overall in the
 L2 cache.
 
-![Multithreaded cache performance](multithreaded_caches.png){#fig:multithreaded}
+![Multithreaded MESI statistics](multithreaded_caches_mesi.png){#fig:multithreaded_mesi}
 
 MESI statistics for the L1 caches are given in @fig:multithreaded_mesi. The
 values are the arithmetic mean of all the statistics on the different
@@ -135,8 +195,6 @@ because it is more likely that any given address is available in the larger
 caches. This also leads to a dramatic increase in invalidates because more data
 is shared in a larger cache and thus a write has a higher probability to
 invalidate more data than with the smaller cache.
-
-![Multithreaded MESI statistics](multithreaded_caches_mesi.png){#fig:multithreaded_mesi}
 
 5.5 Critical sections
 ===================================

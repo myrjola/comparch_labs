@@ -1,8 +1,8 @@
-library(ggplot2)
-library(dplyr)
+library(tidyverse)
 library(sitools)
 library(scales)
-library(tidyr)
+library(knitr)
+library(httr)
 
 ## 3.2
 
@@ -78,7 +78,7 @@ ggplot(data=minimal_cache, aes(x=benchmark,
   xlab("Benchmark") +
   ylab("Hit rate") +
   facet_wrap(~access_type)
-ggsave("minimal_line_size.png", scale=1.3)
+ggsave("minimal_line_size.png", scale=2.0)
 
 ## 3.5
 
@@ -122,7 +122,7 @@ ggplot(data=cache_hierarchy, aes(x=benchmark,
   xlab("Benchmark") +
   ylab("Hit rate") +
   facet_wrap(~cache_type)
-ggsave("cache_hierarchy.png", scale=1.3)
+ggsave("cache_hierarchy.png", scale=2.0)
 
 ## Horrible violation of DRY for 3.5 step 3
 group_by(cache_hierarchy_before_gather, lev2c.cache_size) %>%
@@ -147,7 +147,7 @@ mesi_stats <- read.csv('../cache_statistics_exercise4-4.csv')
 cache_stats44 <- gather(mesi_stats, variable, hit_rate,
                         c(l1.read, l1.write, l1.instruction,
                           l2.read, l2.write, l2.instruction)) %>%
-  mutate(l1size=ordered(cache_stats44$l1size, levels=c("8 kiB", "64 kiB")),
+  mutate(l1size=ordered(l1size, levels=c("8 kiB", "64 kiB")),
          miss_rate=(100-hit_rate)/100)
 
 
@@ -161,7 +161,7 @@ ggplot(data=cache_stats44, aes(x=variable,
                    labels=c("L1 inst", "L1 read", "L1 write",
                             "L2 inst", "L2 read", "L2 write")) +
   ylab("Miss rate")
-ggsave("multithreaded_caches.png")
+ggsave("multithreaded_caches.png", scale=1.8)
 
 mesi_stats <- gather(mesi_stats, variable, stat, c(exclusive.to.shared, Invalidate)) %>%
   mutate(l1size=ordered(l1size, levels=c("8 kiB", "64 kiB")),
@@ -177,8 +177,9 @@ ggplot(data=mesi_stats, aes(x=variable,
   geom_col(position='dodge') +
   scale_y_continuous(breaks=mesi_stats$stat) +
   scale_fill_discrete(name="L1 cache size (bytes)") +
-  ylab("L1 MESI statistics (mean count)")
-ggsave("multithreaded_caches_mesi.png")
+  ylab("L1 MESI statistics (mean count)") +
+  xlab("MESI transaction")
+ggsave("multithreaded_caches_mesi.png", scale=1.5)
 
 
 ## 3.6
@@ -206,14 +207,17 @@ gemm_stats <- gemm_stats %>%
 ##                                    "L1 instruction cache",
 ##                                    "L2 cache")
 
-top <- select(gemm_stats, average_memory_access_time, lev2c.config_line_number,
-              dc.config_line_size, dc.config_line_number, ic.config_line_number)
+cache_size <- 1024
+block_size <- 128
+associativity <- 4
 
 run_cacti <- function (cache_size, block_size, associativity) {
-  system2("./cacti", c(cache_size, block_size, associativity, 1,
-                       0, 0, 0, 1, 65, block_size * 8, 0, 0, 0,
-                       1, 0, 0, 0, 0, 1, 300, 0, 0, 0, 0, 1, 1,
-                       1, 1, 0, 0, 50, 10, 10, 0, 1, 1))
+  args <- c(cache_size, block_size, associativity, 1,
+            0, 0, 0, 1, 65, block_size * 8, 0, 0, 0,
+            1, 0, 0, 0, 0, 1, 300, 0, 0, 0, 0, 1, 1,
+            1, 1, 0, 0, 50, 10, 10, 0, 1, 1)
+  print(paste("./cacti", paste(args, collapse=" ")))
+  system2("./cacti", args)
 }
 
 l2_configs <- select(gemm_stats, cache_size=lev2c.cache_size, line_size=lev2c.config_line_size, assoc=lev2c.config_assoc)
@@ -222,11 +226,38 @@ dc_configs <- select(gemm_stats, cache_size=dc.cache_size, line_size=dc.config_l
 
 cache_configs <- bind_rows(l2_configs, dc_configs, ic_configs) %>% distinct()
 
-mapply(run_cacti, cache_configs$cache_size,
-       cache_configs$line_size/cache_configs$assoc,
-       cache_configs$assoc)
+cacti_fetch <- function(cache_size, line_size, assoc) {
+  body <- list(cache_size=cache_size,
+               line_size=line_size,
+               assoc=assoc,
+               nrbanks=1,
+               technode=65,
+               action="submit",
+               cacti="cache",
+               simple="simple_cache",
+               "preview-article"="Submit")
 
-cacti_stats <- read.csv("out.csv") %>%
+  response <- POST("http://quid.hpl.hp.com:9081/cacti/index.y?new", body=body)
+  content <- content(response, 'text')
+  access_time <- str_match(content, "Access time \\(ns\\): ([0-9\\-\\+\\.e]*)")[,2]
+  energy_per_read <- str_match(content, "Total read dynamic energy per read port\\(nJ\\): ([0-9\\-\\+\\.e]*)")[,2]
+  area <- str_match(content, "Total area \\(mm\\^2\\): ([0-9\\-\\+\\.e]*)")[,2]
+  cbind(cache_size, line_size, assoc, access_time, energy_per_read, area)
+}
+
+cacti_fetch(1024, 128, 4)
+
+write.csv2(cache_configs, file="cacti_stats.csv", row.names=FALSE)
+
+cacti_output_file <- "out.csv"
+
+file.remove(cacti_output_file)
+
+## Both cacti runs give out rubbish (Access time of 1e+39). Cacti doesn't seem to work for small caches
+## mapply(cacti_fetch, cache_configs$cache_size, cache_configs$line_size, cache_configs$assoc)
+mapply(run_cacti, cache_configs$cache_size, cache_configs$line_size, cache_configs$assoc)
+
+cacti_stats <- read.csv(cacti_output_file) %>%
   rename(output_width=Output.width..bits., assoc=Associativity, cache_size=Capacity..bytes.) %>%
   mutate(line_size=output_width/8*assoc)
 
@@ -252,3 +283,19 @@ ggplot(data=gemm_stats_cacti, aes(x=dc.config_line_number,
                             y=average_memory_access_time)) +
   geom_point() +
   scale_fill_discrete(name="L2 cache size (bytes)")
+
+## Check which config has the best
+
+top <- select(gemm_stats_cacti, average_memory_access_time, lev2c.config_line_number,
+              dc.config_line_size, dc.config_line_number, ic.config_line_number,
+              dc.config_assoc, lev2c.config_assoc, dc.hit_rate, ic.hit_rate,
+              lev2c.hit_rate)
+
+top[23,]
+
+## select(gemm_stats_cacti, dc.stat_data_read, dc.stat_data_write, ic.stat_inst_fetch, ic.hit_rate, dc.hit_rate, lev2c.hit_rate)
+
+## gemm_stats_cacti$Access.time..ns..l2
+
+knitr::kable(top)
+## knitr::kable(cacti_stats)
