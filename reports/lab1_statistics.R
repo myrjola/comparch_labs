@@ -179,3 +179,76 @@ ggplot(data=mesi_stats, aes(x=variable,
   scale_fill_discrete(name="L1 cache size (bytes)") +
   ylab("L1 MESI statistics (mean count)")
 ggsave("multithreaded_caches_mesi.png")
+
+
+## 3.6
+
+gemm_stats <- read.csv('../cache_statistics_exercise3-6.csv')
+
+gemm_stats <- gemm_stats %>%
+  mutate(ic.hit_rate=1-ic.stat_inst_fetch_miss/ic.stat_inst_fetch,
+         dc.hit_rate=1-(dc.stat_data_read_miss+dc.stat_data_write_miss)/(dc.stat_data_read + dc.stat_data_write),
+         lev2c.total_misses=lev2c.stat_data_read_miss+lev2c.stat_data_write_miss+lev2c.stat_inst_fetch_miss,
+         lev2c.total_transactions=lev2c.stat_data_read+lev2c.stat_data_write+lev2c.stat_inst_fetch,
+         lev2c.miss_rate=lev2c.total_misses/lev2c.total_transactions,
+         lev2c.hit_rate=1-lev2c.miss_rate,
+         dc.cache_size=dc.config_line_number*dc.config_line_size,
+         ic.cache_size=ic.config_line_number*ic.config_line_size,
+         lev2c.cache_size=lev2c.config_line_number*lev2c.config_line_size,
+         lev1c.miss_rate=(ic.stat_inst_fetch_miss+dc.stat_data_read_miss+dc.stat_data_write_miss)/(dc.stat_data_read + dc.stat_data_write + ic.stat_inst_fetch),
+         lev1c.hit_rate=1-lev1c.miss_rate,
+         average_memory_access_time=3+lev1c.miss_rate*(10 + lev2c.miss_rate*200)) %>%
+  arrange(average_memory_access_time)
+  ## gather(variable, hit_rate, c(ic.hit_rate, dc.hit_rate, lev2c.hit_rate)) %>%
+  ## mutate(,
+  ##        cache_type=as.factor(variable))
+## levels(gemm_stats$cache_type) <- c("L1 data cache",
+##                                    "L1 instruction cache",
+##                                    "L2 cache")
+
+top <- select(gemm_stats, average_memory_access_time, lev2c.config_line_number,
+              dc.config_line_size, dc.config_line_number, ic.config_line_number)
+
+run_cacti <- function (cache_size, block_size, associativity) {
+  system2("./cacti", c(cache_size, block_size, associativity, 1,
+                       0, 0, 0, 1, 65, block_size * 8, 0, 0, 0,
+                       1, 0, 0, 0, 0, 1, 300, 0, 0, 0, 0, 1, 1,
+                       1, 1, 0, 0, 50, 10, 10, 0, 1, 1))
+}
+
+l2_configs <- select(gemm_stats, cache_size=lev2c.cache_size, line_size=lev2c.config_line_size, assoc=lev2c.config_assoc)
+ic_configs <- select(gemm_stats, cache_size=ic.cache_size, line_size=ic.config_line_size, assoc=ic.config_assoc)
+dc_configs <- select(gemm_stats, cache_size=dc.cache_size, line_size=dc.config_line_size, assoc=dc.config_assoc)
+
+cache_configs <- bind_rows(l2_configs, dc_configs, ic_configs) %>% distinct()
+
+mapply(run_cacti, cache_configs$cache_size,
+       cache_configs$line_size/cache_configs$assoc,
+       cache_configs$assoc)
+
+cacti_stats <- read.csv("out.csv") %>%
+  rename(output_width=Output.width..bits., assoc=Associativity, cache_size=Capacity..bytes.) %>%
+  mutate(line_size=output_width/8*assoc)
+
+gemm_stats_cacti <- gemm_stats %>%
+  inner_join(cacti_stats,
+             by=c("lev2c.cache_size"="cache_size",
+                  "lev2c.config_assoc"="assoc",
+                  "lev2c.config_line_size"="line_size")) %>%
+  inner_join(cacti_stats,
+             by=c("ic.cache_size"="cache_size",
+                  "ic.config_assoc"="assoc",
+                  "ic.config_line_size"="line_size"),
+             suffix=c(".l2", ".ic")) %>%
+  inner_join(cacti_stats,
+             by=c("dc.cache_size"="cache_size",
+                  "dc.config_assoc"="assoc",
+                  "dc.config_line_size"="line_size"),
+             suffix=c("", ".dc"))
+
+## glimpse(gemm_stats_cacti)
+
+ggplot(data=gemm_stats_cacti, aes(x=dc.config_line_number,
+                            y=average_memory_access_time)) +
+  geom_point() +
+  scale_fill_discrete(name="L2 cache size (bytes)")
