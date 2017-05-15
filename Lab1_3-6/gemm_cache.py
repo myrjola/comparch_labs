@@ -86,7 +86,7 @@ conf.phys_mem.timing_model = conf.id
 
 run_command("magic-break-enable")
 run_command("continue 1") # For some reason magic breakpoint happens after one instruction.
-run_command("continue 1_000_000")
+run_command("continue 100_000_000")
 
 # Some useful attributes to get from the cache
 attrs = ['stat_inst_fetch',
