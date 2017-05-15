@@ -127,7 +127,7 @@ caches. This also leads to a dramatic increase in invalidates because more data
 is shared in a larger cache and thus a write has a higher probability to
 invalidate more data than with the smaller cache.
 
-![Multithreaded MESI statistics](multithreaded_caches.png){#fig:multithreaded_mesi}
+![Multithreaded MESI statistics](multithreaded_caches_mesi.png){#fig:multithreaded_mesi}
 
 5.5 Critical sections
 ===================================
@@ -158,7 +158,12 @@ if(thread == 1){
 MFENCE();
 ```
 
-5. Atomic instructions
+5. Atomic increment & decrement
+
+    Using the non-atomic instructions, the data is inconsistent. This is due to a race conditions and because there is no protective methods for the data. They might become inconsistent in the caches or memory.
+
+    Using atomic instructions, specifically the `lock`-instruction, a data atomicity is ensured by system-level methods. On older CPUs of the Intel family, the instruction locked the memory bus for the duration of the operation, but from P6 forward, the instruction enforces cache-locking. This guarantees exclusive ownership of the cache-line for this data during the operation. Then the cache-coherency mechanisms will ensure that the data is correct after the operation. @inteldev
+
 
 
 Bibliography
