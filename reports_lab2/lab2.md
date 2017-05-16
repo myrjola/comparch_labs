@@ -19,6 +19,20 @@ gathering. We have discussed our findings actively with the repository
 collaborators, but also took care to conduct our own benchmarks and write our
 own analysis.
 
+2.3 Collecting IPC statistics using the MAI
+===========================================
+
+The recorded IPCs of each benchmark is presented in @tbl:ipc_stats. The equake
+benchmark has the highest IPC of almost 2 and the vortex benchmark has the worst
+IPC below 0.1.
+
+| Benchmark | Instructions per cycle |
+|-----------|------------------------|
+| vortex    |              0.0847821 |
+| parser    |              1.1425188 |
+| equake    |              1.9896457 |
+: Instructions per cycle performance for the benchmarks {#tbl:ipc_stats}
+
 Bibliography
 ============
 
