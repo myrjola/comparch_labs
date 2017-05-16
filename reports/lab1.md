@@ -203,35 +203,59 @@ invalidate more data than with the smaller cache.
    explained by race conditions because there is no synchronization. When one
    thread has read the counter value it should be locked from from reading and
    writing by other threads until the value has been incremented/decremented.
-2. Adding the `enter_critical()` and `exit_critical()` makes the data consistent across executions by using mutexes.
-3. Dekker's algorithm
-    a. The variables are marked volatile in order to protect false writes because both threads are accessing them.
-    b. The CPU's out-of-order execution causes the inconsistency of data.    
-4. Memory fence Implementation:
-```c
-if(thread == 1){
-        flag[1] = true;
-        MFENCE();
-        while(flag[0]){
-            if(turn != 1){
-                flag[1] = false;
-                while(turn != 1){
-                    //Busy wait
-                }
-                flag[1] = true;
-            }
-        }
-}
-MFENCE();
-```
 
+2. Adding the `enter_critical()` and `exit_critical()` makes the data consistent across executions by using mutexes.
+
+3. Dekker's algorithm
+
+    a. The variables are marked volatile in order to protect false writes from concurrently accessing threads because of compiler optimizations that would not create problems in a single-threaded execution.
+
+    b. The CPU's out-of-order execution causes the inconsistency of data.
+
+4. Memory fence Implementation, in `enter_critical()`:
+
+    ```c
+    if(thread == 1){
+            flag[1] = true;
+            MFENCE();
+            while(flag[0]){
+                if(turn != 1){
+                    flag[1] = false;
+                    while(turn != 1){
+                        //Busy wait
+                    }
+                    flag[1] = true;
+                }
+            }
+    }
+    MFENCE();
+    ```
 5. Atomic increment & decrement
 
-    Using the non-atomic instructions, the data is inconsistent. This is due to a race conditions and because there is no protective methods for the data. They might become inconsistent in the caches or memory.
+    Using the non-atomic instructions, the data is inconsistent. This is because there is no protective methods for the data. The memory location can be accessed by another thread while it is in the middle of the other CPU's pipeline, containing the old value before the other CPU has written into yet.
 
     Using atomic instructions, specifically the `lock`-instruction, a data atomicity is ensured by system-level methods. On older CPUs of the Intel family, the instruction locked the memory bus for the duration of the operation, but from P6 forward, the instruction enforces cache-locking. This guarantees exclusive ownership of the cache-line for this data during the operation. Then the cache-coherency mechanisms will ensure that the data is correct after the operation. @inteldev
 
 
+6. Atomic compare & exchange
+
+    Using non-atomic instructions, the data is yet again inconsistent. Mostly for same reasons as described above. Using CAS here is also the risk of an ABA-problem, where the other thread can write memory twice so that the resulting bits are same but the counter value does not keep track of this. Using the `lock`-version of `cmpxchgl` results in consistent data. It ensures that the data being read for comparison has not changed meanwhile.
+
+7. Runtime comparison, critical vs. atomic operations
+
+    As the data in @tbl:incdec_perf_table shows, critical sections are much slower. The time for Pthreads would vary significantly over different execution rounds, the time presented in the table is worst case recorded. We can see that instruction-level methods are much faster than software-level protective methods. They both induce stalling in the CPUs but instruction-level methods can reduce the stalls to be only the length of the instruction.
+
+
+8. Runtime comparison, atomic vs. non-atomic operations
+
+    Comparing the instruction-level methods in @tbl:incdec_perf_table, we can see that atomic instructions are slower as they induce stalling, but are a necessary for data consistency. CAS operations are slower but they offer more flexibility as they are not limited to increment/decrement operations, and could be used to implement complicated functions with good performance and data integrity.
+
+| Property                  | Pthreads      | Dekker        | Atomic inc/dec| Non-atomic inc/dec| Atomic CAS     | Non-atomic CAS|
+| ------------:             | :------------ | :-----------  | :-----------  | :-----------      | :-----------   | :-----------  |
+|Average execution time:    | 1.2349 s      | 0.3516 s      | 0.0430 s      | 0.0100 s          | 0.1139 s       | 0.0332 s      |
+: Runtime performance comparison table {#tbl:incdec_perf_table}
+
+<!-- |Avg. iterations/s:| 8.0981e+05    | 2.8442e+06    | 2.3257e+07    | 9.9984e+07        | 8.7765e+06     | 3.0160e+07    | -->
 
 Bibliography
 ============

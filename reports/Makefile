@@ -1,11 +1,9 @@
-CABAL_PATH=~/.cabal/bin
-
 # Creates the lab report
 default:
-		${CABAL_PATH}/pandoc -S -o lab1_akkijyrkka_yrjola.pdf \
-			--filter ${CABAL_PATH}/pandoc-crossref \
-			--filter ${CABAL_PATH}/pandoc-citeproc \
-			lab1.md
+		pandoc -S -o lab1_akkijyrkka_yrjola.pdf \
+			--filter pandoc-crossref \
+			--filter pandoc-citeproc \
+			./lab1.md
 
 
 # Installs all the dependencies to generate the report
