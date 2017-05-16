@@ -164,7 +164,7 @@ the first magic breakpoint.
 
 The top-25 best performing configurations are given in @tbl:gemm_stats. The
 blocked matrix multiply works well with very small caches. Even the L2 cache can
-be very small without too much performance degradation. Without being able to do
+be very small without too much performance degradation. Without being able to
 assess all metrics with Cacti we have to hazard a guess on the most balanced
 configuration. We would like to choose the 23rd best configuration for the
 application, because that is the best one with an L2 cache of only 8 lines and
