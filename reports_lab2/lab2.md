@@ -59,16 +59,26 @@ stalling to wait on the memory transactions to finish.
 
 ![Branch predictor performance](branchpredictors.png){#fig:branch_predictors}
 
-Inspired by the course book chapter 3.3 we implemented a tournament predictor
-@hennesycomparch. We chose to use the already implemented Gshare predictor with
-a 2-bit local predictor. The performance comparison is presented in
-@fig:branch_predictors, the metric used is mispredicts per 1000 instructions.
-The traces we used were the ones we got working, we also noticed that the
-arithmetic mean calculated by the perl script was incorrect. The correct
-arithmetic mean of the mispredicts per 1000 instructions is 5.00 for the Gshare
-predictor and 4.56 for our tournament predictor. So we only achieved a marginal
-improvement over the baseline. The source code for our predictor is given in
-Appendix A.
+Inspired by the course book @hennesycomparch chapter 3.3 we implemented a
+tournament predictor and tried out two different global predictors in
+combination with the classic 2-bit local predictor. Initially we chose to use
+the already implemented Gshare predictor with the 2-bit local predictor. We
+tweaked the history length to 16 so that we would fit the storage budget of 65KB
+optimally. After that we tried to improve the performance by replacing Gshare
+with a 2-level adaptive predictor using 2-bits for history and $4 \times 2$-bits
+for prediction, so in other words it is a (2,2) predictor.
+
+The performance comparison is presented in @fig:branch_predictors, the metric
+used is mispredicts per 1000 instructions. The arithmetic mean (AMEAN in the
+figure) of the mispredicts per 1000 instructions is 4.78 for the Gshare
+predictor and 4.48 for our tournament predictor using Gshare and a local 2-bit
+predictor. We achieved a marginal improvement over the baseline. The tournament
+predictor using 2-level adaptive predictor and a local 2-bit predictor performed
+significantly worse with an arithmetic mean of 12.1. The reason is likely that
+the Gshare predictor uses a history of length 16 and the adaptive predictor only
+has a history length of 2, which is insufficient to predict more complex
+patterns. The source code for our Gshare + local 2-bit tournament predictor is
+given in Appendix A.
 
 Appendix A: Code for assignment 3.1
 ===================================
