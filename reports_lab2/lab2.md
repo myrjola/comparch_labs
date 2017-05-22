@@ -33,6 +33,27 @@ IPC of under 0.9.
 | equake    |              1.9896457 |
 : Instructions per cycle performance for the benchmarks {#tbl:ipc_stats}
 
+2.4 Collecting data about the effect of superscalar pipeline width on IPC
+=========================================================================
+
+As the data in @tbl:ipc_width suggests, increase in width does increase IPC in the beginning, due to increased ILP. The increase does not scale however as shown by the diminishing returns in performance. This is most likely because of execution traps such as the wrong-size and load-miss load replay traps @ajaleel in the program code that cause the reorder buffer to be flushed on exception, rolling back to the pointer to last memory address before the exception. A mispredict in branch prediction causes the same effect.
+
+| Instruction width| Buffer size    | IPC          | % change      |
+| :-------------   | :------------- | :----------  | :----------   |
+| 1	               | 32	            | 0,5211	   |               |
+| 2	               | 32	            | 0,7337	   | 28,98 %       |
+| 4	               | 32	            | 0,8961	   | 18,13 %       |
+| 8	               | 32	            | 0,9484	   | 5,51 %        |
+| 16               | 32	            | 0,9166	   | -3,47 %       |
+| 1	               | 64	            | 0,5382	   |               |
+| 2	               | 64	            | 0,7758	   | 30,63 %       |
+| 4	               | 64	            | 0,9695	   | 19,98 %       |
+| 8	               | 64	            | 1,0300	   | 5,88 %        |
+| 16               | 64	            | 1,0038	   | -2,62 %       |
+: IPC table with varying width and buffer size configurations {#tbl:ipc_width}
+
+The optimal width for a pipeline seems to be 4. At this point the increase in performance vs. cost is at its peak.
+
 2.5 Collecting data about the effect of memory latency on OoO efficiency
 ========================================================================
 
