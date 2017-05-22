@@ -99,7 +99,40 @@ significantly worse with an arithmetic mean of 12.1. The reason is likely that
 the Gshare predictor uses a history of length 16 and the adaptive predictor only
 has a history length of 2, which is insufficient to predict more complex
 patterns. The source code for our Gshare + local 2-bit tournament predictor is
-given in Appendix A.
+given in appendix A.
+
+
+3.2 Create code that performs no better on an OoO machine
+=========================================================
+
+The best tactic to employ for bad performance on a superscalar out-of-order
+processor is maximizing data dependencies. If every instruction depends on the
+earlier the processor must execute them sequentially. We implemented an abysmal
+program exploiting this observation. The source code is presented in appendix B.
+We were unable to get the `targets/sunfire/bagle-gcache-common.simics` image
+working, so we settled on using the `targets/sunfire/bagle-ma-common.simics`
+image for both the 4-width out-of-order and single issue in-order benchmarks. We
+chose to simulate single issue in-order benchmark by setting the reorder buffer
+size to 4, otherwise there would only be one instruction running in the pipeline
+at a time. The settings for both benchmarks is presented in
+@lst:abysmalsettings. We achieved an IPC of 0.98 for the out-of-order benchmark
+and 1.00 for the in-order benchmark.
+
+``` {#lst:abysmalsettings .c caption="Simics settings for the abysmal benchmark"}
+// 4-width issue width out-of-order
+ma_cpu0->fetches_per_cycle = 4
+ma_cpu0->execute_per_cycle = 4
+ma_cpu0->retires_per_cycle = 4
+ma_cpu0->commits_per_cycle = 4
+cpu0->reorder_buffer_size = 32
+
+// single issue in-order simulation
+ma_cpu0->fetches_per_cycle = 1
+ma_cpu0->execute_per_cycle = 1
+ma_cpu0->retires_per_cycle = 1
+ma_cpu0->commits_per_cycle = 1
+cpu0->reorder_buffer_size = 4
+```
 
 Appendix A: Code for assignment 3.1
 ===================================
@@ -304,6 +337,355 @@ bool PREDICTOR::gsharePrediction(UINT32 PC) {
   }
   return NOT_TAKEN;
 }
+```
+
+
+Appendix B: Code for assignment 3.2
+===================================
+
+## Contents of `abysmal.S`
+
+Compile with `as abysmal.S -o abysmal.o && ld abysmal.o -o abysmal` on the
+Simics target.
+
+
+```asm
+  section ".data"
+  .align 4
+.jumpaddr:
+  .uaword 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0
+  .section ".text"
+  .global main
+  .align 4
+
+main:
+  ! function call to get the return address used
+  ! for the unconditional jump
+  sethi 0x40000, %g0 ! magic break
+  call abysmal
+abysmal:
+  mov %o7, %l0       ! store return address
+  add %l0, 848, %l0  ! jump to after magic break
+  set .jumpaddr ,%l1 ! set variable address to register
+  st %l0, [%l1]      ! store the jump address
+  st %l1, [%l1 + 4]  ! store the address to the jump address
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to the address to the jump address
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  add %l1, 4, %l1    ! next word
+  st %l1, [%l1 + 4]  ! store the address to ...
+  mov %l1, %l2       ! set register %l2 to the next to last address in the chain
+  add %l1, 4, %l3    ! next word and store result in %l3
+  sethi 0x40000, %g0 ! magic break
+  ld [%l3], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to ... from memory
+  ld [%l1], %l1      ! load the address to the jump address from memory
+  ld [%l1], %l1      ! load the jump address from memory
+  jmpl %l1, %g0      ! unconditional jump
+  st %l2, [%l3]      ! delay instruction with dependency
 ```
 
 Bibliography
